@@ -9,11 +9,9 @@ if [[ -e $sdk ]]; then
     flags+=(-mmacosx-version-min=10.4 -isysroot "$sdk")
 fi
 
-for arch in i386 x86_64; do
-    if g++ -arch "${arch}" --version &>/dev/null; then
-        flags+=(-arch "${arch}")
-    fi
+for arch in "-arch i386" "-arch x86_64" "-m32" "-m64"; do
+    g++ "${arch}" --version |& grep error &>/dev/null || flags+=("${arch}")
 done
 
 set -x
-g++ "${flags[@]}" -o ldid ldid.cpp -I. -x c lookup2.c sha1.c
+g++ "${flags[@]}" -o ldid ldid.cpp -I. -x c sha1.c
